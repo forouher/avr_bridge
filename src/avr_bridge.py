@@ -169,11 +169,12 @@ class AvrBridge():
 		self.packets_tag[tag] = packet
 		
 		self.recieve_CBs[tag] = recv_cb
-	def openPort(self, portName):
+	def openPort(self, portName, baudRate):
 		print "Port name is ", portName
-		self.port = serial.Serial(portName, 57600, timeout=0.06)
+		self.port = serial.Serial(portName, baudRate, timeout=0.06)
 		time.sleep(0.75)
 		self.portName = portName
+		self.baudRate = baudRate
 		self.port.flushOutput()
 		self.port.flushInput() 
 		self.port.flush()
@@ -333,6 +334,7 @@ class AvrBridgeNode():
 		self.config = yaml.load(configFileObj)
 		
 		self.portName = self.config['port']
+		self.baudRate = self.config['baudRate']
 		if not '/dev/' in self.portName:
 			self.portName = '/dev/'+ self.portName
 		
@@ -400,7 +402,7 @@ class AvrBridgeNode():
 		"""
 		Start up basic bridge node
 		"""
-		self.bridge.openPort(self.portName)
+		self.bridge.openPort(self.portName, self.baudRate)
 		self.bridge.run()
 		rospy.spin()
 		self.bridge.shutdown()
