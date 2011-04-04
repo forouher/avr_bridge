@@ -284,7 +284,11 @@ def write_cpp(f, msg_name, pkg, msg_spec):
 		f.line('ros::MsgSz msgSize = 0;')
 		
 		for field in msg_spec.parsed_fields():
-			if (field.is_builtin and not (field.type == 'string') ):
+			if (field.is_builtin and not (field.type == 'string') and field.is_array ):
+				fpkg, ftype = extract_ros_type(field)
+				ctype, clen = primitives[ftype]
+				f.line('msgSize += {0}*sizeof({1});'.format(field.array_len,ctype))
+			elif (field.is_builtin and not (field.type == 'string') ):
 				fpkg, ftype = extract_ros_type(field)
 				ctype, clen = primitives[ftype]
 				f.line('msgSize += sizeof({0});'.format(ctype))
